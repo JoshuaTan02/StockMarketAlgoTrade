@@ -19,11 +19,18 @@ Alpaca has a zero commision fee which lets me do multiple trades in a day while 
 
 I want to start by using MA (moving average) and EMA (exponential moving average).  I will calculate the opening prices of the stock in order to get real time indicators because using closing prices would result in it being a minute late.
 
+## MA vs EMA
+
+I want to calculate the MA and `EMA`. I will be using minutes for my prices and will try *(5 , 7 , 10)* opening prices for my MA and `EMA`. The idea is when my `EMA` and `MA` cross I will do a transaction. I should buy and hold a stock if my `EMA` > `MA`. Once my `EMA` <  `MA` I will sell and wait for `EMA` and `MA` to intersect again. This a simple rule and mostly want to see whether I can work with the API and what are my results after a few days.  
+
+I hope to expand to find new metrics and indicators to implement new methods. 
+
 ## Technology 
 This project is created with: 
 * Python 
 * VS Code
 
 
-<!-- ## Improvements -->
+## Improvements
 
+[ ] Find a way to use AI or Machine Learning to read the prices and see a trend. I will want to get more metrics nad create a regression model to see what correlates with the price. 
