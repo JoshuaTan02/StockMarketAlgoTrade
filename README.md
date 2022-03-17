@@ -21,7 +21,7 @@ I want to start by using MA (moving average) and EMA (exponential moving average
 
 ## MA vs EMA
 
-I want to calculate the MA and `EMA`. I will be using minutes for my prices and will try *(5 , 7 , 10)* opening prices for my MA and `EMA`. The idea is when my `EMA` and `MA` cross I will do a transaction. I should buy and hold a stock if my `EMA` > `MA`. Once my `EMA` <  `MA` I will sell and wait for `EMA` and `MA` to intersect again. This a simple rule and mostly want to see whether I can work with the API and what are my results after a few days.  
+I want to calculate the `MA` and `EMA`. I will be using minutes for my prices and will try *(5 , 7 , 10)* opening prices for my MA and `EMA`. The idea is when my `EMA` and `MA` cross I will do a transaction. I should buy and hold a stock if my `EMA` > `MA`. Once my `EMA` <  `MA` I will sell and wait for `EMA` and `MA` to intersect again. This a simple rule and mostly want to see whether I can work with the API and what are my results after a few days.  
 
 I hope to expand to find new metrics and indicators to implement new methods. 
 
