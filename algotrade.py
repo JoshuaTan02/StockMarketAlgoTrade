@@ -3,6 +3,7 @@ from config import *
 import requests,json
 import time
 
+
 APCA_API_BASE_URL="https://paper-api.alpaca.markets/"
 ORDERS_URL = APCA_API_BASE_URL+"v2/orders"
 ACCOUNT_URL = APCA_API_BASE_URL+"v2/account"
@@ -11,6 +12,16 @@ headers = {
     "APCA-API-KEY-ID": alpacaAPI,
     "APCA-API-SECRET-KEY": alpacaSecret
 }
+
+POLYGONAPI  = polygonAPI
+POLYGON_URL = "https://api.polygon.io/v2/aggs/ticker/SPY/range/1/day/2020-06-01/2020-06-17?apiKey=" + POLYGONAPI
+RAPIDAPI_URL = "https://twelve-data1.p.rapidapi.com/"
+
+rapid_headers = {
+	"X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
+	"X-RapidAPI-Key": rapidAPI
+}
+
 
 def get_account():
     request = requests.get(ACCOUNT_URL,headers = headers)
@@ -68,18 +79,24 @@ def updateStats(EMA,MA,buying,orderID):
     return calculate_EMA(5),calculate_MA(5),buying,orderID
 
 def calculate_EMA(timeperiod):
-    print("")
-    return 0
+    querystring = {"symbol":"SPY","interval":"1min","format":"json","series_type":"open","ma_type":"EMA","outputsize":"30","time_period": str(timeperiod)}
+    response = requests.request("GET", RAPIDAPI_URL+"ema", headers= rapid_headers, params=querystring)
+    return json.loads(response.text)["values"][0]["ema"]
+
 def calculate_MA(timeperiod):
     #take the time period of minutes and calculate the avg from adding up all the prices
-    return 0
+    querystring = {"symbol":"SPY","interval":"1min","format":"json","series_type":"open","ma_type":"SMA","outputsize":"30","time_period": str(timeperiod)}
+    response = requests.request("GET", RAPIDAPI_URL+"ma", headers= rapid_headers, params=querystring)
+
+    return json.loads(response.text)["values"][0]["ma"]
 
 marketopen = False
 buying = True
 orderID = None
 EMA = calculate_EMA(5)
 MA = calculate_MA(5)
-
+print(MA)
+print(EMA)
 while marketopen:
 
     if buying and orderID is None:
