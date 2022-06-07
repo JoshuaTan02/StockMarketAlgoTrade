@@ -81,14 +81,17 @@ def updateStats(EMA,MA,buying,orderID):
 def calculate_EMA(timeperiod):
     querystring = {"symbol":"SPY","interval":"1min","format":"json","series_type":"open","ma_type":"EMA","outputsize":"30","time_period": str(timeperiod)}
     response = requests.request("GET", RAPIDAPI_URL+"ema", headers= rapid_headers, params=querystring)
-    return json.loads(response.text)["values"][0]["ema"]
+    response = json.loads(response.text)["values"][0]
+    print("EMA time is : "  + response["datetime"])
+    return response["ema"]
 
 def calculate_MA(timeperiod):
     #take the time period of minutes and calculate the avg from adding up all the prices
     querystring = {"symbol":"SPY","interval":"1min","format":"json","series_type":"open","ma_type":"SMA","outputsize":"30","time_period": str(timeperiod)}
     response = requests.request("GET", RAPIDAPI_URL+"ma", headers= rapid_headers, params=querystring)
-
-    return json.loads(response.text)["values"][0]["ma"]
+    response = json.loads(response.text)["values"][0]
+    print("MA time is : "  + response["datetime"])
+    return response["ma"]
 
 marketopen = False
 buying = True
