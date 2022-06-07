@@ -26,7 +26,7 @@ def delete_order(id):
     return request
 
 def get_order(orderID):
-    url = ORDERS_URL + "/"+ id
+    url = ORDERS_URL + "/"+ orderID
     request = requests.get(url,headers=headers)
     return json.loads(request.content)
 
