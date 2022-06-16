@@ -23,7 +23,8 @@ rapid_headers = {
 }
 
 prices = []
-
+MAs= []
+EMAs = []
 def get_account():
     request = requests.get(ACCOUNT_URL,headers = headers)
     return json.loads(request.content)
@@ -79,16 +80,18 @@ def updateStats(EMA,MA,buying,orderID):
     
     return calculate_EMA(5),calculate_MA(5),buying,orderID
 
-def calculate_EMA(prices, timeperiod,smoothing):
-    ema = [sum(prices[:timeperiod]) / timeperiod]
-    for price in prices[timeperiod:]:
-        ema.append((price * (smoothing / (1 + timeperiod))) + ema[-1] * (1 - (smoothing / (1 + timeperiod))))
+def calculate_EMA(prices, timeperiod,smoothing, MA):
+    if len(EMAs) == 0:
+        ema = MA
+    else:
+        K = float(float (smoothing) / float(timeperiod+1))
+        ema = float(prices[-1])*K + float(EMAs[-1])*float(1.00-K)
     return ema
 
 def calculate_MA(timeperiod):
 
     #take the time period of minutes and calculate the avg from adding up all the prices
-
+    # time.sleep(60)
     querystring = {"symbol":"AMZN","outputsize":"30","format":"json"}
     response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
     response = json.loads(response.text)["price"]
@@ -96,12 +99,12 @@ def calculate_MA(timeperiod):
     while len (prices) < timeperiod:
         print("not enough prices will wait a minute to get another price to add")
         print(prices)
-        time.sleep(60)
+        # time.sleep(60)
         response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
         response = json.loads(response.text)["price"]
         prices.append(float(response))       
     while len(prices) > timeperiod:
-        prices.pop
+        prices.pop(0)
         print("Too many prices and need to remove one")
         print(prices)
 
@@ -111,11 +114,10 @@ def calculate_MA(timeperiod):
 marketopen = False
 buying = True
 orderID = None
-MAs= []
-EMAs = []
-for i in range (0,10):
+
+for i in range (0,2):
     MA = calculate_MA(5)
-    EMA = calculate_EMA(prices, 5, 2)
+    EMA = calculate_EMA(prices, 5, 2, MA)
     print(MA)
     print(EMA)
     MAs.append(MA)
