@@ -22,6 +22,7 @@ rapid_headers = {
 	"X-RapidAPI-Key": rapidAPI
 }
 
+prices = []
 
 def get_account():
     request = requests.get(ACCOUNT_URL,headers = headers)
@@ -78,31 +79,52 @@ def updateStats(EMA,MA,buying,orderID):
     
     return calculate_EMA(5),calculate_MA(5),buying,orderID
 
-def calculate_EMA(timeperiod):
-    #does not give the correct EMA 
-    # querystring = {"symbol":"SPY","interval":"1min","format":"json","series_type":"open","ma_type":"EMA","outputsize":"30","time_period": str(timeperiod)}
-    # response = requests.request("GET", RAPIDAPI_URL+"ema", headers= rapid_headers, params=querystring)
-    # response = json.loads(response.text)["values"][0]
-    # print("EMA time is : "  + response["datetime"])
-    return response["ema"]
+def calculate_EMA(prices, timeperiod,smoothing):
+    ema = [sum(prices[:timeperiod]) / timeperiod]
+    for price in prices[timeperiod:]:
+        ema.append((price * (smoothing / (1 + timeperiod))) + ema[-1] * (1 - (smoothing / (1 + timeperiod))))
+    return ema
 
 def calculate_MA(timeperiod):
 
     #take the time period of minutes and calculate the avg from adding up all the prices
-    [103.72,104.13,104.26,104.01,103.54]
+
     querystring = {"symbol":"AMZN","outputsize":"30","format":"json"}
     response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
     response = json.loads(response.text)["price"]
-    return response
+    prices.append(float (response))
+    while len (prices) < timeperiod:
+        print("not enough prices will wait a minute to get another price to add")
+        print(prices)
+        time.sleep(60)
+        response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
+        response = json.loads(response.text)["price"]
+        prices.append(float(response))       
+    while len(prices) > timeperiod:
+        prices.pop
+        print("Too many prices and need to remove one")
+        print(prices)
+
+    MA = [sum(prices[:timeperiod]) / timeperiod]
+    return MA
 
 marketopen = False
 buying = True
 orderID = None
-# EMA = calculate_EMA(5)
-MA = calculate_MA(5)
-print(MA)
+MAs= []
+EMAs = []
+for i in range (0,10):
+    MA = calculate_MA(5)
+    EMA = calculate_EMA(prices, 5, 2)
+    print(MA)
+    print(EMA)
+    MAs.append(MA)
+    EMAs.append(EMA)
+print(MAs)
+print(EMAs)
+
 # print(MA)
-# print(EMA)
+
 # while marketopen:
 
 #     if buying and orderID is None:
