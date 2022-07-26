@@ -3,7 +3,7 @@ from config import *
 import requests,json
 import time
 from datetime import datetime
-import pytz
+# import pyt
 APCA_API_BASE_URL="https://paper-api.alpaca.markets/"
 ORDERS_URL = APCA_API_BASE_URL+"v2/orders"
 ACCOUNT_URL = APCA_API_BASE_URL+"v2/account"
@@ -84,9 +84,9 @@ def calculate_EMA(prices, timeperiod,smoothing, MA):
     if len(EMAs) == 0:
         ema = MA
     else:
-        K = float(float (smoothing) / float(timeperiod+1))
-        ema = float(prices[-1])*K + float(EMAs[-1])*float(1.00-K)
-    return ema
+        K = ((smoothing) /(timeperiod+1))
+        ema = (prices[-1])*K + (EMAs[-1])* (1.00-K)
+    return float(ema)
 
 def calculate_MA(timeperiod):
 
@@ -95,30 +95,32 @@ def calculate_MA(timeperiod):
     querystring = {"symbol":"AMZN","outputsize":"30","format":"json"}
     response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
     response = json.loads(response.text)["price"]
-    prices.append(float (response))
+    prices.append(float(response))
     while len (prices) < timeperiod:
         print("not enough prices will wait a minute to get another price to add")
         print(prices)
-        # time.sleep(60)
+        time.sleep(15)
         response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
         response = json.loads(response.text)["price"]
         prices.append(float(response))       
     while len(prices) > timeperiod:
-        prices.pop(0)
         print("Too many prices and need to remove one")
         print(prices)
+        prices.pop(0)
 
-    MA = [sum(prices[:timeperiod]) / timeperiod]
-    return MA
+    print("Finished looping")
+    print(prices)
+    MA = sum(prices) / timeperiod
+    return (MA)
 
 marketopen = False
 buying = True
 orderID = None
 
 for i in range (0,2):
-    MA = calculate_MA(5)
-    EMA = calculate_EMA(prices, 5, 2, MA)
-    print(MA)
+    MA = calculate_MA(3)
+    EMA = calculate_EMA(prices, 3, 2, MA)
+    print("MA is : " + str(MA))
     print(EMA)
     MAs.append(MA)
     EMAs.append(EMA)
