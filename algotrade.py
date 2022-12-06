@@ -55,32 +55,35 @@ def buy_order(symbol,qty,side,type,time_in_force):
     request = requests.post(ORDERS_URL,json =body ,headers = headers)
     return json.loads(request.content)
 
+timeperiod = 5
 
 def updateStats(EMA,MA,buying,orderID):
     #checks if the avg price filled is not null so we know the order was successful
 
-    response = get_order(orderID)
+    # response = get_order(orderID)
 
 
-    avgPrice,qty = response["filled_avg_price"],response["qty"]
+    # avgPrice,qty = response["filled_avg_price"],response["qty"]
 
-    while avgPrice is None:
-        print("order has not been filled yet waiting antoher 15 seconds")
-        time.sleep(15000)
-        avgPrice,qty = response["filled_avg_price"],response["qty"]
+    # while avgPrice is None:
+    #     print("order has not been filled yet waiting antoher 15 seconds")
+    #     time.sleep(15000)
+    #     avgPrice,qty = response["filled_avg_price"],response["qty"]
        
-    if buying:
-        #this means we bought a stock
-        print("Bought stock @: {} and qty: {}".format(avgPrice,qty))
-    else:
-        #this means we sold the stock
-        print("Sold stock @: {} and qty: {}".format(avgPrice,qty))
-        orderID = None
+    # if buying:
+    #     #this means we bought a stock
+    #     print("Bought stock @: {} and qty: {}".format(avgPrice,qty))
+    # else:
+    #     #this means we sold the stock
+    #     print("Sold stock @: {} and qty: {}".format(avgPrice,qty))
+    #     orderID = None
     buying = not buying
-    
-    return calculate_EMA(5),calculate_MA(5),buying,orderID
+    MA = calculate_MA(timeperiod)
+    EMA = calculate_EMA(prices,timeperiod,2,MA)
+    return EMA,MA,buying,orderID
 
 def calculate_EMA(prices, timeperiod,smoothing, MA):
+    smoothing
     if len(EMAs) == 0:
         ema = MA
     else:
@@ -99,7 +102,7 @@ def calculate_MA(timeperiod):
     while len (prices) < timeperiod:
         print("not enough prices will wait a minute to get another price to add")
         print(prices)
-        time.sleep(15)
+        time.sleep(60)
         response = requests.request("GET", RAPIDAPI_URL, headers= rapid_headers, params=querystring)
         response = json.loads(response.text)["price"]
         prices.append(float(response))       
@@ -113,23 +116,33 @@ def calculate_MA(timeperiod):
     MA = sum(prices) / timeperiod
     return (MA)
 
-marketopen = False
+marketopen = True
 buying = True
 orderID = None
 
-for i in range (0,2):
-    MA = calculate_MA(3)
-    EMA = calculate_EMA(prices, 3, 2, MA)
-    print("MA is : " + str(MA))
-    print(EMA)
-    MAs.append(MA)
-    EMAs.append(EMA)
+MA = calculate_MA(timeperiod)
+EMA = calculate_EMA(prices, timeperiod, 2, MA)
+print("MA is : " + str(MA))
+print("EMA is: " + str(EMA))
+MAs.append(MA)
+EMAs.append(EMA)
 print(MAs)
 print(EMAs)
 
-# print(MA)
-
-# while marketopen:
+while marketopen:
+    print("inside loop")
+    time.sleep(60)
+    EMA,MA,buying,orderID = updateStats(EMA,MA,buying,"")
+    print("MA is : " + str(MA))
+    print("EMA is: " + str(EMA))
+    MAs.append(MA)
+    EMAs.append(EMA)
+    while len(MAs) > timeperiod:
+        MAs.pop(0)
+    while len(EMAs) > timeperiod:
+        EMAs.pop(0)
+    print(MAs)
+    print(EMAs)
 
 #     if buying and orderID is None:
 #         if EMA > MA:
@@ -146,7 +159,8 @@ print(EMAs)
 #     #waits 20 seconds then will check my order if the buyID has been sold or bought
 #     print("waiting 20 seconds")
 #     time.sleep(20000)
-#     EMA,MA,buying,orderID = updateStats(EMA,MA,buying,orderID)
+
+
     
 
 
